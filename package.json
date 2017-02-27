@@ -9,6 +9,6 @@
   },
   "scripts": {
     "collect-dependencies": "node ./bin/deps",
-    "link": "node ./bin/linker"
+    "linker": "node ./bin/linker"
   }
 }
