@@ -1,0 +1,14 @@
+{
+  "name": "ac-node-modules",
+  "version": "1.0.0",
+  "author": "Oliver Leics <oliver.leics@gmail.com>",
+  "license": "MIT",
+  "bin": {
+    "ac-node-modules-collect-dependencies": "./bin/deps",
+    "ac-node-modules-linker": "./bin/linker"
+  },
+  "scripts": {
+    "collect-dependencies": "node ./bin/deps",
+    "link": "node ./bin/linker"
+  }
+}
