@@ -6,7 +6,7 @@ var promiseSettle = require('../lib/promise-settle');
 
 console.log('LINKER (%s)', process.cwd());
 
-var MODULES_FOLDER = 'node_modules';
+var MODULES_FOLDER = path.join(process.cwd(), 'node_modules');
 
 acfs_ensureFolder(MODULES_FOLDER)
   .then(function(){
@@ -30,9 +30,9 @@ acfs_ensureFolder(MODULES_FOLDER)
                   }
                   var errs = r.filter(function(d){return d[0] != null;}).map(function(d){return d[0];});
                   if(errs.length !== 0) {
-                    console.error('· · Errors: %s', errs.length);
+                    console.error('· · Errors: %s (might be ok)', errs.length);
                     errs.forEach(function(err){
-                      console.error(err.stack||err);
+                      console.error('· ·   %s', err.message||err.stack||err);
                     });
                   }
                 })
@@ -43,7 +43,7 @@ acfs_ensureFolder(MODULES_FOLDER)
       })
       .then(function(){
         // link self
-        return linkModule(path.resolve(__dirname, '..'));
+        return linkModule(process.cwd());
       })
     ;
   })
