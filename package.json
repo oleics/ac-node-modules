@@ -4,8 +4,8 @@
   "author": "Oliver Leics <oliver.leics@gmail.com>",
   "license": "MIT",
   "bin": {
-    "ac-node-modules-collect-dependencies": "./bin/deps",
-    "ac-node-modules-linker": "./bin/linker"
+    "ac-node-modules-collect-dependencies": "./bin/deps.js",
+    "ac-node-modules-linker": "./bin/linker.js"
   },
   "scripts": {
     "collect-dependencies": "node ./bin/deps",
