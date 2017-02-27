@@ -4,18 +4,11 @@ var fs = require('fs');
 var path = require('path');
 
 var cwd = process.cwd();
+var moduleFolders = process.argv.slice(2);
 
-console.log(cwd);
-acfs_readJsonFile(path.join(cwd, 'deps.json'))
-  .then(function(config){
-    if(config[process.env.NODE_ENV]) {
-      folders = config[process.env.NODE_ENV];
-    } else {
-      folders = config.default;
-    }
-    console.log(folders);
-    return collectDeps(cwd, folders);
-  })
+console.log('DEPS (%s) %j', cwd, moduleFolders);
+
+collectDeps(cwd, moduleFolders)
   .then(function(deps){
     console.log(deps);
     console.log('OK');

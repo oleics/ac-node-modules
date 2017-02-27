@@ -4,54 +4,63 @@ var fs = require('fs');
 var path = require('path');
 var promiseSettle = require('../lib/promise-settle');
 
-console.log('LINKER (%s)', process.cwd());
+var args = {
+  linkSelf: false
+};
 
-var MODULES_FOLDER = path.join(process.cwd(), 'node_modules');
+var cwd = process.cwd();
+var moduleFolders = process.argv.slice(2).filter(function(arg){
+  if(arg === '--link-self') {
+    args.linkSelf = true;
+    return false;
+  }
+  return true;
+});
+
+console.log('LINKER (%s) %j', cwd, moduleFolders);
+
+var MODULES_FOLDER = path.join(cwd, 'node_modules');
 
 acfs_ensureFolder(MODULES_FOLDER)
   .then(function(){
-    return acfs_readJsonFile('linker.json')
-      .then(function(config){
-        var modules = config.modules;
-
-        return removeAllSymlinks(MODULES_FOLDER)
-          .then(function(){
-            return promiseSettle(modules.map(function(folder){
-              folder = path.resolve(folder);
-              return linkModuleFolders(folder)
-                .then(function(r){
-                  console.log('· Folder: %s', folder);
-                  var arr = r.filter(function(d){return d[0] == null;}).map(function(d){return d[1];});
-                  if(arr.length !== 0) {
-                    console.log('· · Linked modules: %s', arr.length);
-                    arr.forEach(function(d){
-                      console.log('· · · %s: %s > %s', d.name, d.source, d.target);
-                    });
-                  }
-                  var errs = r.filter(function(d){return d[0] != null;}).map(function(d){return d[0];});
-                  if(errs.length !== 0) {
-                    console.error('· · Errors: %s (might be ok)', errs.length);
-                    errs.forEach(function(err){
-                      console.error('· ·   %s', err.message||err.stack||err);
-                    });
-                  }
-                })
-              ;
-            }));
-          })
-        ;
-      })
+    return removeAllSymlinks(MODULES_FOLDER)
       .then(function(){
-        // link self
-        return linkModule(process.cwd());
+        return promiseSettle(moduleFolders.map(function(folder){
+          folder = path.resolve(folder);
+          return linkModuleFolders(folder)
+            .then(function(r){
+              console.log('· Folder: %s', folder);
+              var arr = r.filter(function(d){return d[0] == null;}).map(function(d){return d[1];});
+              if(arr.length !== 0) {
+                console.log('· · Linked modules: %s', arr.length);
+                arr.forEach(function(d){
+                  console.log('· · · %s: %s > %s', d.name, d.source, d.target);
+                });
+              }
+              var errs = r.filter(function(d){return d[0] != null;}).map(function(d){return d[0];});
+              if(errs.length !== 0) {
+                console.error('· · Errors: %s (might be ok)', errs.length);
+                errs.forEach(function(err){
+                  console.error('· ·   %s', err.message||err.stack||err);
+                });
+              }
+            })
+          ;
+        }));
       })
     ;
   })
+  .then(function(){
+    if(args.linkSelf) {
+      // link self
+      return linkModule(cwd);
+    }
+  })
   .then(function(err){
-    console.log('DONE LINKER (%s)', process.cwd());
+    console.log('DONE LINKER (%s)', cwd);
   })
   .catch(function(err){
-    console.error('ERROR LINKER (%s)', process.cwd());
+    console.error('ERROR LINKER (%s)', cwd);
     console.error(err.stack||err);
   })
 ;
